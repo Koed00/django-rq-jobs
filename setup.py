@@ -10,7 +10,7 @@ setup(
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_rq_jobs'],
-    url='https://github.com/ui/django-rq-jobs',
+    url='https://github.com/koed00/django-rq-jobs',
     license='MIT',
     description='Provides scheduled jobs from the Django Admin using django-rq',
     long_description=README,
