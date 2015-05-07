@@ -56,9 +56,9 @@ Notes
  So if you missed an hourly tasks 12 times and restart with a 5 minute heartbeat, your task will run every 5 minutes until it catches up with the current schedule.
  This way limited run schedules don't get compromised.
  
-Management Commmands
+Scheduling Management Commands
 --------------------
-If you want to schedule regular Django management commands, the best way is to add them is using Django's management wrapper.
+If you want to schedule regular Django management commands, it's easiest to add them using Django's management wrapper.
 So if you wanted to schedule `manage.py clearsessions' :
 
 ```
