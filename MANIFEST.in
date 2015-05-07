@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+recursive-include django_rq_jobs *.py
