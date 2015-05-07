@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Job',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('task', models.CharField(max_length=100, choices=[(b'clean_sessions', b'Clean Sessions')])),
+                ('task', models.CharField(max_length=100, choices=[])),
                 ('args', models.CharField(max_length=255, null=True, blank=True)),
                 ('schedule_type', models.CharField(default=b'O', max_length=1, verbose_name='Schedule Type', choices=[(b'O', 'Once'), (b'H', 'Hourly'), (b'D', 'Daily'), (b'W', 'Weekly'), (b'M', 'Monthly'), (b'Q', 'Quarterly'), (b'Y', 'Yearly')])),
                 ('repeats', models.SmallIntegerField(default=-1, verbose_name='Repeats')),
