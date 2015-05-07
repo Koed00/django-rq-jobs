@@ -27,12 +27,12 @@ INSTALLED_APPS = (
     "django_rq_jobs",
 )
 ```
-* Add `RQ_JOBS_MODULE` in settings.py:
+* Add `RQ_JOBS_MODULE` in settings.py.
+   This will point RQ Jobs to where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
+   will show up in the admin.
 ```
 RQ_JOBS_MODULE = 'myapp.tasks'
 ```
-This will point RQ Jobs to where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
-will show up in the admin.
 
 * Run `python manage.py migrate` to create the job model.
 
@@ -48,8 +48,8 @@ Notes
 -----
 * Supports hourly, daily, weekly, monthly, quarterly and yearly scheduled tasks.
 * Limited run schedules: Set the 'Repeats' on a task to the maxium number of repeats you want. The task gets deleted once the counter reaches zero.
-*RQ Jobs will try to link a job to a queue task status in RQ. Usually these job reports don't exist much longer than a few minutes unless they fail. So if you are seeing `None` in the RQ status, that usually means things went well.
-*If you haven't run the heartbeat `manage.py rqjobs` for a while and missed some scheduled jobs, RQ Jobs will play catch-up with every heartbeat.
+* RQ Jobs will try to link a job to a queue task status in RQ. Usually these job reports don't exist much longer than a few minutes unless they fail. So if you are seeing `None` in the RQ status, that usually means things went well.
+* If you haven't run the heartbeat `manage.py rqjobs` for a while and missed some scheduled jobs, RQ Jobs will play catch-up with every heartbeat.
  So if you missed an hourly tasks 12 times and restart with a 5 minute heartbeat, your task will run every 5 minutes until it catches up with the current schedule.
  This way limited run schedules don't get compromised.
  
