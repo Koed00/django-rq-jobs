@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
 
 setup(
     name='django-rq-jobs',
-    version='0.1.1',
+    version='0.1.2',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_rq_jobs'],
