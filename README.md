@@ -46,11 +46,11 @@ RQ_JOBS_MODULE = 'myapp.tasks'
     
 Notes
 -----
-* Supports hourly, daily, weekly, monthly, quarterly and yearly scheduled tasks.
+* Supports once, hourly, daily, weekly, monthly, quarterly and yearly scheduled tasks.
 
-* Limited run schedules: Set the 'Repeats' on a task to the maxium number of repeats you want. The task gets deleted once the counter reaches zero.
+* Limited run schedules: Set the 'Repeats' on a task to the maxium number of repeats you want. The task gets deleted once the counter reaches zero. Defaults to `-1` for eternal.
 
-* RQ Jobs will try to link a job to a queue task status in RQ. Usually these job reports don't exist much longer than a few minutes unless they fail. So if you are seeing `None` in the RQ status, that usually means things went well.
+* RQ Jobs will try to link a job to a queue task status in Django RQ. Usually these job reports don't exist much longer than a few minutes unless they fail. So if you are seeing `None` in the RQ status, that usually means things went well.
 
 * If you haven't run the heartbeat `manage.py rqjobs` for a while and missed some scheduled jobs, RQ Jobs will play catch-up with every heartbeat.
  So if you missed an hourly tasks 12 times and restart with a 5 minute heartbeat, your task will run every 5 minutes until it catches up with the current schedule.
@@ -77,4 +77,7 @@ This will automagically appear as 'Clear Sessions' in the admin interface.
 Todo
 -----
 * Create tests
-* Test with older versions of Django and maybe lower the 1.7 requirement
+
+Acknowledgments
+---------------
+Impossible without the excellent [Django-RQ](https://github.com/ui/django-rq) and [RQ](https://github.com/nvie/rq) projects. Thanks to [Arrow](https://github.com/crsmithdev/arrow) for making dates easy.
