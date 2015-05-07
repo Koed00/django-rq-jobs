@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for job in Job.objects.exclude(repeats=0).filter(next_run__lt=arrow.utcnow().datetime):
-            task = getattr(importlib.import_module(settings.JOBS_MODULE), job.task)
+            task = getattr(importlib.import_module(settings.RQ_JOBS_MODULE), job.task)
             try:
                 if job.args:
                     rq = django_rq.enqueue(task, **literal_eval(job.args))
