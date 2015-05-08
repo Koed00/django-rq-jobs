@@ -50,6 +50,8 @@ Notes
 
 * Limited run schedules: Set the 'Repeats' on a task to the maxium number of repeats you want. The task gets deleted once the counter reaches zero. Defaults to `-1` for eternal.
 
+* Arguments are a dict:  `{'one': 1, 'two': 2, 'three': 3}`
+
 * RQ Jobs will try to link a job to a queue task status in Django RQ. Usually these job reports don't exist much longer than a few minutes unless they fail. So if you are seeing `None` in the RQ status, that usually means things went well.
 
 * If you haven't run the heartbeat `manage.py rqjobs` for a while and missed some scheduled jobs, RQ Jobs will play catch-up with every heartbeat.
