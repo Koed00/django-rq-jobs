@@ -64,8 +64,7 @@ If you want to schedule regular Django management commands, it's easiest to add 
 So if you wanted to schedule `manage.py clearsessions' :
 
 ```
-from django import management
-
+from django.core import management
 
 @job
 def clear_sessions():
