@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from django.utils.translation import activate
 from django.core import management
+from django_rq import get_failed_queue
 
 from django_rq_jobs.models import underscore_to_camelcase, task_list, queue_index_by_name, Job
 
@@ -83,4 +84,8 @@ class RQJobsTestCase(TestCase):
         self.assertEqual(Job.objects.get(pk=test_job.pk).repeats, 1)
         management.call_command('rqjobs')
         self.assertFalse(Job.objects.filter(pk=test_job.pk).exists())
+
+    def tearDown(self):
+        q = get_failed_queue()
+        q.empty()
 
