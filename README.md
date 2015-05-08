@@ -11,7 +11,7 @@ Requirements
 * [Django-RQ](https://github.com/ui/django-rq)
 * [Arrow](https://github.com/crsmithdev/arrow)
 
-Installation
+Installation
 -----------
 
 * Make sure you have [Django-RQ](https://github.com/ui/django-rq) up and running before you do anything.
