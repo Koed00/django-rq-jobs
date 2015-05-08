@@ -74,11 +74,6 @@ def clear_sessions():
 
 This will automagically appear as 'Clear Sessions' in the admin interface.
 
-
-Todo
------
-* Create tests
-
 Acknowledgments
 ---------------
 Impossible without the excellent [Django-RQ](https://github.com/ui/django-rq) and [RQ](https://github.com/nvie/rq) projects. Thanks to [Arrow](https://github.com/crsmithdev/arrow) for making dates easy.
