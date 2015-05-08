@@ -1,10 +1,9 @@
 from ast import literal_eval
-import importlib
 
 import arrow
-from django.conf import settings
 from django.core.management.base import BaseCommand
 import django_rq
+
 from django_rq_jobs.models import Job
 
 
@@ -13,17 +12,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for job in Job.objects.exclude(repeats=0).filter(next_run__lt=arrow.utcnow().datetime):
-            task = getattr(importlib.import_module(settings.RQ_JOBS_MODULE), job.task)
-            try:
-                if job.args:
-                    rq = django_rq.enqueue(task, **literal_eval(job.args))
-                else:
-                    rq = django_rq.enqueue(task)
-                job.rq_id = rq.id
-                job.rq_origin = rq.origin
-            except NameError:
-                self.stdout.write('Error: Unknown task')
-                continue
+            if job.args:
+                rq = django_rq.enqueue(job.rq_task, **literal_eval(job.args))
+            else:
+                rq = django_rq.enqueue(job.rq_task)
+            job.rq_id = rq.id
+            job.rq_origin = rq.origin
             job.last_run = arrow.utcnow().datetime
             self.stdout.write('{} queued'.format(job.get_task_display()))
             if job.schedule_type != Job.ONCE:

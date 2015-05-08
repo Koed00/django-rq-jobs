@@ -2,6 +2,7 @@ import importlib
 from types import FunctionType
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -15,7 +16,6 @@ from rq.job import Job as RQJob
 def underscore_to_camelcase(word):
     """
     Humanizes function names
-    :param word:
     """
     return ' '.join(char.capitalize() for char in word.split('_'))
 
@@ -23,8 +23,7 @@ def underscore_to_camelcase(word):
 def queue_index_by_name(name):
     """
     Reverse lookups the queue index used by django_rq
-    Need this for links to the djang_rq admin pages
-    :param name:
+    Need this for links to the django_rq admin pages
     """
     for index, config in enumerate(QUEUES_LIST):
         if config['name'] == name:
@@ -34,15 +33,20 @@ def queue_index_by_name(name):
 
 def task_list():
     """
-    Scans the module set in JOBS_MODULE for RQ jobs decorated with @task
+    Scans the module set in RQ_JOBS_MODULE for RQ jobs decorated with @task
     Compiles a readable list for Job model task choices
     """
-    tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
-    t = [x for x, y in tasks.__dict__.items() if type(y) == FunctionType and hasattr(y, 'delay')]
     choices = []
-    for j in t:
-        choices.append((j, underscore_to_camelcase(j)))
-    choices.sort(key=lambda tup: tup[1])
+    try:
+        tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
+        t = [x for x, y in tasks.__dict__.items() if type(y) == FunctionType and hasattr(y, 'delay')]
+        for j in t:
+            choices.append((j, underscore_to_camelcase(j)))
+        choices.sort(key=lambda tup: tup[1])
+    except AttributeError:
+        raise ImproperlyConfigured(_("You have to define RQ_JOBS_MODULE in settings.py"))
+    except ImportError:
+        raise ImproperlyConfigured(_("Can not find module {}").format(settings.RQ_JOBS_MODULE))
     return choices
 
 
@@ -90,6 +94,11 @@ class Job(models.Model):
             url = reverse('rq_job_detail',
                           kwargs={'job_id': self.rq_id, 'queue_index': queue_index_by_name(self.rq_origin)})
             return '<a href="{}">{}</a>'.format(url, self.rq_id)
+
+    @property
+    def rq_task(self):
+        tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
+        return getattr(tasks, self.task)
 
     rq_link.allow_tags = True
 
