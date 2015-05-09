@@ -2,13 +2,17 @@ from ast import literal_eval
 
 import arrow
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext_lazy as _
 import django_rq
 
 from django_rq_jobs.models import Job
 
 
 class Command(BaseCommand):
-    help = "Queues scheduled jobs"
+    help = _("Queues scheduled jobs")
+    BaseCommand.can_import_settings = True
+    BaseCommand.requires_system_checks = True
+    BaseCommand.leave_locale_alone = True
 
     def handle(self, *args, **options):
         for job in Job.objects.exclude(repeats=0).filter(next_run__lt=arrow.utcnow().datetime):
@@ -19,7 +23,7 @@ class Command(BaseCommand):
             job.rq_id = rq.id
             job.rq_origin = rq.origin
             job.last_run = arrow.utcnow().datetime
-            self.stdout.write('{} queued'.format(job.get_task_display()))
+            self.stdout.write(_('* Queueing {} on {}.').format(job.get_task_display(), job.rq_origin), ending=' ')
             if job.schedule_type != Job.ONCE:
                 if job.repeats < 0 or job.repeats > 1:
                     next_run = arrow.get(job.next_run)
@@ -38,12 +42,11 @@ class Command(BaseCommand):
                     job.next_run = next_run.datetime
                     if job.repeats > 1:
                         job.repeats += -1
-                    self.stdout.write('Next run {}'.format(next_run.humanize()))
+                    self.stdout.write(_('Next run {}.').format(next_run.humanize()))
                     job.save()
                 else:
                     job.delete()
-                    self.stdout.write('Deleting limited run task')
+                    self.stdout.write(_('Deleting limited run task'))
             else:
-                self.stdout.write('Deleting run once task')
+                self.stdout.write(_('Deleting run once task'))
                 job.delete()
-        self.stdout.write('Done')
