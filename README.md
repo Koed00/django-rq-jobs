@@ -54,9 +54,7 @@ Notes
 
 * RQ Jobs will try to link a job to a queue task status in Django RQ. Usually these job reports don't exist much longer than a few minutes unless they fail. So if you are seeing `None` in the RQ status, that usually means things went well.
 
-* If you haven't run the heartbeat `manage.py rqjobs` for a while and missed some scheduled jobs, RQ Jobs will play catch-up with every heartbeat.
- So if you missed an hourly tasks 12 times and restart with a 5 minute heartbeat, your task will run every 5 minutes until it catches up with the current schedule.
- This way limited run schedules don't get compromised.
+* If you haven't run the heartbeat `manage.py rqjobs` for a while and missed some scheduled jobs, RQ Jobs will play catch-up with every heartbeat. This way limited run schedules don't get compromised.
  
 Scheduling Management Commands
 --------------------
@@ -73,11 +71,6 @@ def clear_sessions():
 ```
 
 This will automagically appear as 'Clear Sessions' in the admin interface.
-
-
-Todo
------
-* Create tests
 
 Acknowledgments
 ---------------
