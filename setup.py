@@ -1,18 +1,22 @@
+import os
+
 from setuptools import setup
 
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
+    README = readme.read()
+
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-rq-jobs',
-    version='0.1.3',
+    version='0.1.4',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_rq_jobs'],
     url='https://github.com/koed00/django-rq-jobs',
     license='MIT',
     description='Provides scheduled jobs from the Django Admin using Django-RQ',
-    long_description='Run cron-like jobs on distributed queues from your django admin using Django-RQ. '
-                     'Supports Once, Hourly, Weekly, Monthly, Quarterly and Yearly schedules.'
-                     'Requires Django, Django-RQ and Arrow',
+    long_description=README,
     include_package_data=True,
     install_requires=['django>=1.7', 'django-rq>=0.8.0', 'arrow>=0.5.4'],
     classifiers=[
