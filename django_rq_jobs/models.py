@@ -14,9 +14,7 @@ from rq.job import Job as RQJob
 
 
 def underscore_to_camelcase(word):
-    """
-    Humanizes function names
-    """
+    """Humanizes function names"""
     return ' '.join(char.capitalize() for char in word.split('_'))
 
 
@@ -78,6 +76,7 @@ class Job(models.Model):
 
     @property
     def rq_job(self):
+        """The last RQ Job this ran on"""
         if not self.rq_id or not self.rq_origin:
             return
         try:
@@ -86,10 +85,12 @@ class Job(models.Model):
             return
 
     def rq_status(self):
+        """Proxy for status so we can include it in the admin"""
         if self.rq_job:
             return self.rq_job.status
 
     def rq_link(self):
+        """Link to Django-RQ status page for this job"""
         if self.rq_job:
             url = reverse('rq_job_detail',
                           kwargs={'job_id': self.rq_id, 'queue_index': queue_index_by_name(self.rq_origin)})
@@ -97,6 +98,10 @@ class Job(models.Model):
 
     @property
     def rq_task(self):
+        """T
+        The function to call for this task.
+        Config errors are caught by tasks_list() already.
+        """
         tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
         return getattr(tasks, self.task)
 
