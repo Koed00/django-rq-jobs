@@ -4,7 +4,7 @@
 
 Provides scheduled jobs management from the Django Admin using [Django-RQ](https://github.com/ui/django-rq)
 
-![Admin Screenshot](/home/ilan/Workspace/django-rq-jobs/screenshot.png) 
+![Admin Screenshot](http://i.imgur.com/yd09EqH.png) 
 
 ##Requirements
 
