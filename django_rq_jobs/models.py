@@ -1,3 +1,4 @@
+from builtins import object
 import importlib
 from types import FunctionType
 
@@ -37,7 +38,7 @@ def task_list():
     choices = []
     try:
         tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
-        t = [x for x, y in tasks.__dict__.items() if type(y) == FunctionType and hasattr(y, 'delay')]
+        t = [x for x, y in list(tasks.__dict__.items()) if type(y) == FunctionType and hasattr(y, 'delay')]
         for j in t:
             choices.append((j, underscore_to_camelcase(j)))
         choices.sort(key=lambda tup: tup[1])
@@ -107,7 +108,7 @@ class Job(models.Model):
 
     rq_link.allow_tags = True
 
-    class Meta:
+    class Meta(object):
         ordering = ['next_run']
         verbose_name_plural = _("Scheduled jobs")
 

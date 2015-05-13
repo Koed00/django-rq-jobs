@@ -1,10 +1,8 @@
 from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
-
 from django.test import TestCase, override_settings
 from django.utils import timezone
-
 from django.utils.translation import activate
 from django.core import management
 from django_rq import get_failed_queue
@@ -31,7 +29,6 @@ class RQJobsTestCase(TestCase):
         self.assertEqual(task_list(), [('django_arg_check', 'Django Arg Check'), ('django_check', 'Django Check')])
         with self.settings(RQ_JOBS_MODULE=None):
             self.assertRaises(ImproperlyConfigured, task_list)
-
 
     @override_settings(RQ_QUEUES="{'high': {},'default': {}, 'low': {}")
     def test_queue_index_by_name(self):
@@ -88,4 +85,3 @@ class RQJobsTestCase(TestCase):
     def tearDown(self):
         q = get_failed_queue()
         q.empty()
-
