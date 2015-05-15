@@ -19,6 +19,7 @@ setup(
     long_description=README,
     include_package_data=True,
     install_requires=['django>=1.7', 'django-rq>=0.8.0', 'arrow>=0.5.4'],
+    test_suite='django_rq_jobs.tests.runtests.runtests',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

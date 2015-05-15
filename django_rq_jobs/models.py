@@ -1,4 +1,3 @@
-from builtins import object
 import importlib
 from types import FunctionType
 

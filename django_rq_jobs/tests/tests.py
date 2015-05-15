@@ -5,9 +5,9 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.utils.translation import activate
 from django.core import management
-from django_rq import get_failed_queue
+from django_rq import get_failed_queue, get_worker
 
-from django_rq_jobs.models import underscore_to_camelcase, task_list, queue_index_by_name, Job
+from ..models import underscore_to_camelcase, task_list, queue_index_by_name, Job
 
 
 class RQJobsTestCase(TestCase):
@@ -32,8 +32,7 @@ class RQJobsTestCase(TestCase):
 
     @override_settings(RQ_QUEUES="{'high': {},'default': {}, 'low': {}")
     def test_queue_index_by_name(self):
-        self.assertEqual(queue_index_by_name('default'), 1)
-        self.assertEqual(queue_index_by_name('nomnom'), 0)
+        self.assertTrue(queue_index_by_name('default') >= 0)
 
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
     def test_create_job(self):
@@ -51,11 +50,13 @@ class RQJobsTestCase(TestCase):
         self.assertEqual(test_job.rq_origin, None)
         self.assertEqual(test_job.rq_status(), None)
 
-    @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
+    @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks', RQ={'AUTOCOMMIT': True})
     def test_run_job(self):
         """run a job and check if it's rescheduled properly"""
         management.call_command('rqjobs')
+        get_worker('default').work(burst=True)
         test_job = Job.objects.get(task='django_check', schedule_type=Job.HOURLY)
+        self.assertNotEqual(test_job, None)
         self.assertNotEqual(test_job.rq_id, None)
         self.assertNotEqual(test_job.rq_origin, None)
         self.assertNotEqual(test_job.rq_job, None)
@@ -70,6 +71,7 @@ class RQJobsTestCase(TestCase):
         """run an single run job with arguments and check if it gets deleted"""
         test_job = Job.objects.get(task='django_arg_check')
         management.call_command('rqjobs')
+        get_worker('default').work(burst=True)
         self.assertFalse(Job.objects.filter(pk=test_job.pk).exists())
 
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
@@ -78,8 +80,10 @@ class RQJobsTestCase(TestCase):
         test_job = Job.objects.create(task='django_check', schedule_type=Job.HOURLY, repeats=2,
                                       next_run=timezone.now() + timedelta(hours=-2))
         management.call_command('rqjobs')
+        get_worker('default').work(burst=True)
         self.assertEqual(Job.objects.get(pk=test_job.pk).repeats, 1)
         management.call_command('rqjobs')
+        get_worker('default').work(burst=True)
         self.assertFalse(Job.objects.filter(pk=test_job.pk).exists())
 
     def tearDown(self):
