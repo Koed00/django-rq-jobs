@@ -15,5 +15,5 @@ install:
 script:
   - python setup.py test
 
-service:
+services:
   - redis-server
