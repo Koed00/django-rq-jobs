@@ -14,19 +14,22 @@ class RQJobsTestCase(TestCase):
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
     def setUp(self):
         activate('en-en')
-        Job.objects.create(task='django_check', schedule_type=Job.HOURLY)
-        Job.objects.create(task='django_check', schedule_type=Job.WEEKLY)
-        Job.objects.create(task='django_check', schedule_type=Job.MONTHLY)
-        Job.objects.create(task='django_check', schedule_type=Job.QUARTERLY)
-        Job.objects.create(task='django_check', schedule_type=Job.YEARLY)
-        Job.objects.create(task='django_arg_check', schedule_type=Job.ONCE, args={'verbosity': 3})
+        Job.objects.create(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.HOURLY)
+        Job.objects.create(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.WEEKLY)
+        Job.objects.create(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.MONTHLY)
+        Job.objects.create(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.QUARTERLY)
+        Job.objects.create(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.YEARLY)
+        Job.objects.create(task='django_rq_jobs.tests.tasks.django_arg_check', schedule_type=Job.ONCE, args={'verbosity': 3})
 
     def test_camel_case(self):
         self.assertEqual(underscore_to_camelcase('this_is_a_function'), 'This Is A Function')
 
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
     def test_task_list(self):
-        self.assertEqual(task_list(), [('django_arg_check', 'Django Arg Check'), ('django_check', 'Django Check')])
+        self.assertEqual(task_list(), [
+            ('django_rq_jobs.tests.tasks.django_arg_check', 'Django Arg Check'),
+            ('django_rq_jobs.tests.tasks.django_check', 'Django Check')
+        ])
         with self.settings(RQ_JOBS_MODULE=None):
             self.assertRaises(ImproperlyConfigured, task_list)
 
@@ -37,8 +40,8 @@ class RQJobsTestCase(TestCase):
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
     def test_create_job(self):
         """test simple job creation """
-        test_job = Job.objects.get(task='django_check', schedule_type=Job.HOURLY)
-        self.assertEqual(test_job.task, 'django_check')
+        test_job = Job.objects.get(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.HOURLY)
+        self.assertEqual(test_job.task, 'django_rq_jobs.tests.tasks.django_check')
         self.assertEqual(test_job.args, None)
         self.assertEqual(test_job.schedule_type, Job.HOURLY)
         self.assertEqual(test_job.repeats, -1)
@@ -55,7 +58,7 @@ class RQJobsTestCase(TestCase):
         """run a job and check if it's rescheduled properly"""
         management.call_command('rqjobs')
         get_worker('default').work(burst=True)
-        test_job = Job.objects.get(task='django_check', schedule_type=Job.HOURLY)
+        test_job = Job.objects.get(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.HOURLY)
         self.assertNotEqual(test_job, None)
         self.assertNotEqual(test_job.rq_id, None)
         self.assertNotEqual(test_job.rq_origin, None)
@@ -69,7 +72,7 @@ class RQJobsTestCase(TestCase):
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
     def test_run_once_job(self):
         """run an single run job with arguments and check if it gets deleted"""
-        test_job = Job.objects.get(task='django_arg_check')
+        test_job = Job.objects.get(task='django_rq_jobs.tests.tasks.django_arg_check')
         management.call_command('rqjobs')
         get_worker('default').work(burst=True)
         self.assertFalse(Job.objects.filter(pk=test_job.pk).exists())
@@ -77,7 +80,7 @@ class RQJobsTestCase(TestCase):
     @override_settings(RQ_JOBS_MODULE='django_rq_jobs.tests.tasks')
     def test_run_limited_job(self):
         """run a limited run job twice to see if it counts down and gets deleted"""
-        test_job = Job.objects.create(task='django_check', schedule_type=Job.HOURLY, repeats=2,
+        test_job = Job.objects.create(task='django_rq_jobs.tests.tasks.django_check', schedule_type=Job.HOURLY, repeats=2,
                                       next_run=timezone.now() + timedelta(hours=-2))
         management.call_command('rqjobs')
         get_worker('default').work(burst=True)

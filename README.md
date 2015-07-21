@@ -27,11 +27,14 @@ INSTALLED_APPS = (
     "django_rq_jobs",
 )
 ```
-* Add `RQ_JOBS_MODULE` in settings.py.
-   This will point RQ Jobs to where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
+* Add `RQ_JOBS_MODULES` in settings.py.
+   A tuple of strings designating all modules where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
    will show up in the admin.
 ```python
-RQ_JOBS_MODULE = 'myapp.tasks'
+RQ_JOBS_MODULES = (
+    'myapp.tasks'
+    'anotherapp.tasks'
+)
 ```
 
 * Run `python manage.py migrate` to create the job model.
