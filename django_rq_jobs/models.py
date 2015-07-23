@@ -1,5 +1,6 @@
 import importlib
 from types import FunctionType
+from six import string_types
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -34,18 +35,21 @@ def task_list():
     Scans the modules set in RQ_JOBS_MODULES for RQ jobs decorated with @task
     Compiles a readable list for Job model task choices
     """
-    jobs_module = getattr(settings, 'RQ_JOBS_MODULE', None)
-    jobs_module_list = getattr(settings, 'RQ_JOBS_MODULES', None)
+    try:
+        jobs_module = settings.RQ_JOBS_MODULE
+    except AttributeError:
+        raise ImproperlyConfigured(_("You have to define RQ_JOBS_MODULE in settings.py"))
 
-    if not (jobs_module or jobs_module_list):
-        raise ImproperlyConfigured(_("You have to define RQ_JOBS_MODULE or RQ_JOBS_MODULES in settings.py"))
-
-    if jobs_module:
-        jobs_module_list = [jobs_module]
+    if isinstance(jobs_module, string_types):
+        jobs_modules = (jobs_module,)
+    elif isinstance(jobs_module, (tuple, list)):
+        jobs_modules = jobs_module
+    else:
+        raise ImproperlyConfigured(_("RQ_JOBS_MODULE must be a string or a tuple"))
 
     choices = []
 
-    for module in jobs_module_list:
+    for module in jobs_modules:
         try:
             tasks = importlib.import_module(module)
         except ImportError:

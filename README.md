@@ -28,8 +28,13 @@ INSTALLED_APPS = (
 )
 ```
 * Add `RQ_JOBS_MODULES` in settings.py.
-   A tuple of strings designating all modules where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
+   A string or a tuple of strings designating all modules where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
    will show up in the admin.
+```python
+RQ_JOBS_MODULES = 'myapp.tasks'
+```
+or
+
 ```python
 RQ_JOBS_MODULES = (
     'myapp.tasks'

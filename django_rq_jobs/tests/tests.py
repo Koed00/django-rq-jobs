@@ -62,7 +62,7 @@ class RQJobsTestCase(TestCase):
         self.assertNotEqual(test_job, None)
         self.assertNotEqual(test_job.rq_id, None)
         self.assertNotEqual(test_job.rq_origin, None)
-        self.assertNotEqual(test_job.rq_job, None)
+        self.assertIsNot(test_job.rq_job, None)
         self.assertNotEqual(test_job.rq_status(), None)
         self.assertNotEqual(test_job.rq_origin, None)
         self.assertNotEqual(test_job.rq_link(), None)
