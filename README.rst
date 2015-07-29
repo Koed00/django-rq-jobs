@@ -8,6 +8,7 @@ Provides scheduled jobs management from the Django Admin using
    :alt: Admin Screenshot
 
    Admin Screenshot
+
 Requirements
 ------------
 
@@ -34,13 +35,20 @@ Installation
            "django_rq_jobs",
        )
 
--  Add ``RQ_JOBS_MODULE`` in settings.py. This will point RQ Jobs to
-   where you keep your jobs. Anything marked with the Django RQ's
-   ``@job`` decorator will show up in the admin.
+-  Add ``RQ_JOBS_MODULE`` in settings.py. A string or a tuple of strings
+   designating all modules where you keep your jobs. Anything marked
+   with the Django RQ's ``@job`` decorator will show up in the admin.
 
    .. code:: python
 
+       # A singe module:
        RQ_JOBS_MODULE = 'myapp.tasks'
+
+       # or with multiple modules:
+       RQ_JOBS_MODULE = (
+           'myapp.tasks',
+           'anotherapp.tasks',
+       )
 
 -  Run ``python manage.py migrate`` to create the job model.
 

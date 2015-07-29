@@ -33,6 +33,7 @@ INSTALLED_APPS = (
 ```python
 # A singe module:
 RQ_JOBS_MODULE = 'myapp.tasks'
+
 # or with multiple modules:
 RQ_JOBS_MODULE = (
     'myapp.tasks',
