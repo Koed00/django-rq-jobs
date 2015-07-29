@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-rq-jobs',
-    version='0.1.4',
+    version='0.1.5',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_rq_jobs'],
