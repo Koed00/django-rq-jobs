@@ -1,6 +1,8 @@
 from ast import literal_eval
 
+import importlib
 import arrow
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 import django_rq
@@ -16,6 +18,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for job in Job.objects.exclude(repeats=0).filter(next_run__lt=arrow.utcnow().datetime):
+            if '.' not in job.task:
+                job = fix_module(job)
             if job.args:
                 rq = django_rq.enqueue(job.rq_task, **literal_eval(job.args))
             else:
@@ -50,3 +54,18 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(_('Deleting run once task'))
                 job.delete()
+
+
+def fix_module(job):
+    """
+    Fix for tasks without a module. Provides backwards compatibility with < 0.1.5
+    """
+    for module in settings.RQ_JOBS_MODULE:
+        try:
+            module_match = importlib.import_module(module)
+            if hasattr(module_match, job.task):
+                job.task = '{}.{}'.format(module, job.task)
+                break
+        except ImportError:
+            continue
+    return job
