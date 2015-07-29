@@ -31,17 +31,14 @@ INSTALLED_APPS = (
    A string or a tuple of strings designating all modules where you keep your jobs. Anything marked with the  Django RQ's `@job` decorator 
    will show up in the admin.
 ```python
+# A singe module:
 RQ_JOBS_MODULE = 'myapp.tasks'
-```
-or
-
-```python
+# or with multiple modules:
 RQ_JOBS_MODULE = (
-    'myapp.tasks'
-    'anotherapp.tasks'
+    'myapp.tasks',
+    'anotherapp.tasks',
 )
 ```
-
 * Run `python manage.py migrate` to create the job model.
 
 * Open your Django admin and find the RQ Jobs scheduled job section and schedule something.
