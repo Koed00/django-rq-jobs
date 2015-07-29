@@ -1,5 +1,6 @@
 import importlib
 from types import FunctionType
+from six import string_types
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -31,25 +32,41 @@ def queue_index_by_name(name):
 
 def task_list():
     """
-    Scans the module set in RQ_JOBS_MODULE for RQ jobs decorated with @task
+    Scans the modules set in RQ_JOBS_MODULES for RQ jobs decorated with @task
     Compiles a readable list for Job model task choices
     """
-    choices = []
     try:
-        tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
-        t = [x for x, y in list(tasks.__dict__.items()) if type(y) == FunctionType and hasattr(y, 'delay')]
-        for j in t:
-            choices.append((j, underscore_to_camelcase(j)))
-        choices.sort(key=lambda tup: tup[1])
+        jobs_module = settings.RQ_JOBS_MODULE
     except AttributeError:
         raise ImproperlyConfigured(_("You have to define RQ_JOBS_MODULE in settings.py"))
-    except ImportError:
-        raise ImproperlyConfigured(_("Can not find module {}").format(settings.RQ_JOBS_MODULE))
+
+    if isinstance(jobs_module, string_types):
+        jobs_modules = (jobs_module,)
+    elif isinstance(jobs_module, (tuple, list)):
+        jobs_modules = jobs_module
+    else:
+        raise ImproperlyConfigured(_("RQ_JOBS_MODULE must be a string or a tuple"))
+
+    choices = []
+
+    for module in jobs_modules:
+        try:
+            tasks = importlib.import_module(module)
+        except ImportError:
+            raise ImproperlyConfigured(_("Can not find module {}").format(module))
+
+        module_choices = [('%s.%s' % (module, x), underscore_to_camelcase(x)) for x, y in list(tasks.__dict__.items())
+                          if type(y) == FunctionType and hasattr(y, 'delay')]
+
+        choices.extend(module_choices)
+
+    choices.sort(key=lambda tup: tup[1])
+
     return choices
 
 
 class Job(models.Model):
-    task = models.CharField(max_length=100, choices=task_list())
+    task = models.CharField(max_length=200, choices=task_list())
     args = models.CharField(max_length=255, null=True, blank=True)
     ONCE = 'O'
     HOURLY = 'H'
@@ -98,12 +115,16 @@ class Job(models.Model):
 
     @property
     def rq_task(self):
-        """T
+        """
         The function to call for this task.
         Config errors are caught by tasks_list() already.
         """
-        tasks = importlib.import_module(settings.RQ_JOBS_MODULE)
-        return getattr(tasks, self.task)
+        task_path = self.task.split('.')
+        module_name = '.'.join(task_path[:-1])
+        task_name = task_path[-1]
+
+        module = importlib.import_module(module_name)
+        return getattr(module, task_name)
 
     rq_link.allow_tags = True
 
