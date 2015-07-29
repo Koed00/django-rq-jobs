@@ -16,5 +16,6 @@ class ScheduleAdmin(admin.ModelAdmin):
         'rq_status'
     )
     list_filter = ('last_run', 'next_run', 'schedule_type')
+    list_display_links = ('id', 'task')
 admin.site.register(Job, ScheduleAdmin)
 
